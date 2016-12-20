@@ -35,7 +35,7 @@ jQuery(document).ready(function () {
     jQuery('#login-js-page').on('submit',function (e) {
         // e.preventDefault();
         var that = jQuery(this),
-            url = 'api/login_page ',//that.attr('action'),
+            url = 'api/login_page',//that.attr('action'),
             type = that.attr('method'),
             data = [];
         // alert(type);
@@ -48,13 +48,13 @@ jQuery(document).ready(function () {
             var value = res[i].val();
             data[name] = value;
         }
+
+        var formData = jQuery('#login-js-page').serialize();
         console.log(type);
-        console.log(data);
-        console.log('http://localhost/drup/drupal-7.53/'+url);
         jQuery.ajax({
             url : 'api/login_page',
-            type : type,
-            data : data,
+            type : "POST",
+            data : formData,
             success: function (response) {
                 // alert(response);
                 console.log(response);
@@ -68,20 +68,3 @@ jQuery(document).ready(function () {
         return false;
     });
 });
-
-function ajax_form() {
-    jQuery.ajax({
-        url : 'api/login_page',
-        type : type,
-        data : data,
-        success: function (response) {
-            // alert(response);
-            console.log(response);
-            jQuery('#errors').html("Done Data"+data);
-        },
-        error: function (e) {
-            console.log(e);
-            jQuery('#errors').html("Error Data");
-        }
-    });
-}
