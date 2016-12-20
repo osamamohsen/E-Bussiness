@@ -43,11 +43,6 @@ function login_js_page(){
     $form['submit'] = array(
         '#type' => 'submit',
         '#value' => 'Login',
-//        '#ajax' => array
-//        (
-//            'callback' => 'login_js_ajax_callback',
-//            'event' => 'click',
-//        ),
     );
 //    $form['#attributes'] = array('onsubmit' => 'return false');
 
@@ -59,10 +54,7 @@ function login_js_page(){
 
 }
 
-//function ajax_callback(){
-////    if(isset($_post['']))
-//}
-
+/*function redirect ajax submit*/
 function course_question_data() {
     $name = "ahmed";
     if(!empty($_POST['name']))  $name='submit';
