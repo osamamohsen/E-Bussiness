@@ -1,0 +1,72 @@
+
+<?php
+
+function login_js_menu(){
+    $items = array();
+//	http://localhost/drupal-7.52/?q=login_page
+    $items['login_page'] = array(
+        'title' => 'Login Page by JavaScript',
+        'description' => 'Description of Login Page',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('login_js_page'),
+        'access callback' => 'user_access',
+        'access arguments' => array('access content'),
+        'type' => MENU_NORMAL_ITEM
+    );
+
+    $items['course/API/v1/question-data'] =  array(
+        'title' => '',
+        'page callback' => 'course_question_data',
+        'access arguments' => array('access content'),
+        'type' => MENU_CALLBACK,
+        'delivery callback' => 'drupal_json_output',
+    );
+
+    return $items;
+}
+
+function login_js_page(){
+
+    $form = array();
+//    echo 'd';
+
+    $form['name'] = array(
+        '#type' => 'textfield',
+        '#title' => 'user name',
+        '#required' => TRUE,
+    );
+    $form['password'] = array(
+        '#type' => 'password',
+        '#title' => 'Password',
+        '#required' => TRUE,
+    );
+    $form['submit'] = array(
+        '#type' => 'submit',
+        '#value' => 'Login',
+//        '#ajax' => array
+//        (
+//            'callback' => 'login_js_ajax_callback',
+//            'event' => 'click',
+//        ),
+    );
+//    $form['#attributes'] = array('onsubmit' => 'return false');
+
+    $form['#suffix'] = "<div id='errors'></div>";
+
+    drupal_add_js(drupal_get_path('module','login_js') . '/login_js.js', 'file');
+
+    return $form;
+
+}
+
+//function ajax_callback(){
+////    if(isset($_post['']))
+//}
+
+function course_question_data() {
+    $name = "ahmed";
+    if(!empty($_POST['name']))  $name='submit';
+//    $_POST['name'] = "osama";
+//    $name = $_POST['name'];
+    return json_encode(['name' => $name, 'age' => 23]);
+}

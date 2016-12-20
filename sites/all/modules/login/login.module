@@ -1,0 +1,215 @@
+
+<?php
+///*
+// * hook init
+// */
+//function login_init(){
+//    drupal_set_message("welcome message");
+//}
+//
+//
+///*
+// * hook_update_N
+// */
+function login_update_7001()
+{
+    $spec = array(
+        'type' => 'varchar',
+        'description' => "fullname of Register Page",
+        'length' => 50,
+        'not null' => FALSE,
+    );
+    db_add_field('users', 'fullname', $spec);/*table=node , field=address*/
+    return t("the new field had been updated");
+}
+
+function login_menu(){
+    $items = array();
+//	http://localhost/drupal-7.52/?q=testpage
+    $items['registerpage'] = array(
+        'title' => 'Register Page by Drupal Ajax',
+        'description' => 'Description of Register Page',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('register_page'),
+        'access callback' => 'user_access',
+        'access arguments' => array('access content'),
+        'type' => MENU_NORMAL_ITEM
+    );
+
+    $items['loginpage'] = array(
+        'title' => 'Login Page by Drupal Ajax',
+        'description' => 'Description of Login Page',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('login_page'),
+        'access callback' => 'user_access',
+        'access arguments' => array('access content'),
+        'type' => MENU_NORMAL_ITEM
+    );
+    return $items;
+}
+
+function register_page(){
+    $form = array();
+
+    $form['username'] = array(
+        '#type' => 'textfield',
+        '#title' => 'username Of Registeration',
+        '#required' => TRUE,
+    );
+
+    $form['fullname'] = array(
+        '#type' => 'textfield',
+        '#title' => 'fullname Of Registeration',
+        '#required' => TRUE,
+    );
+
+    $form['email'] = array(
+        '#type' => 'textfield',
+        '#title' => 'email Of Registeration',
+        '#required' => TRUE,
+    );
+
+    $form['c_password'] = array(
+        '#type' => 'password_confirm',
+        '#title' => 'confirm password Of Registeration',
+        '#required' => TRUE,
+    );
+
+    $form['submit'] = array(
+        '#type' => 'submit',
+        '#value' => 'Submit a Registeration Page',
+        '#ajax' => array(
+            'callback' => '_form_register_add_callback',
+            'progess' => array('type' => 'throbber'),
+            'wrapper' => 'registerwrapper',
+            'method' => 'replace',
+            'effect' => 'fade',
+        ),
+    );
+
+    $form['#prefix'] = '<div id="registerwrapper">';
+    $form['#suffix'] = '</div>';
+
+//    $form['#submit'][] = '_form_register_add_callback';
+    return $form;
+}
+
+function _form_register_add_callback($form, &$form_state){
+
+    $user_exist = user_load_multiple(array(), array('mail' => $form_state['values']['email']));
+    if($user_exist != null) form_set_error('email','Email address had been token');
+
+    $ress = drupal_validate_form('register-page', $form, $form_state);
+    $errors = form_get_errors();
+    if (form_get_errors()) {
+        $form_state['rebuild'] = TRUE;
+    }else{
+        $newUser = array(
+            'name' => $form_state['values']['username'],
+            'fullname'=> $form_state['values']['fullname'],
+            'pass' => $form_state['values']['c_password'], // note: do not md5 the password
+            'mail' => $form_state['values']['email'],
+            'status' => 1,
+            'init' => $form_state['values']['email']
+        );
+        //uid
+
+        $myuser = user_save(null, $newUser);
+
+        $query = db_update('users') // Table name no longer needs {}
+        ->fields(array('fullname' => $form_state['values']['fullname']))
+            ->condition('uid', $myuser->uid)
+            ->execute();
+
+//        $user = user_load($myuser->uid);
+//        $user->fullname = $form_state['values']['fullname'];
+//        user_save((object) array('uid' => $user->uid), (array) $user);
+        drupal_set_message(t('new user had been created'));
+    }
+    return $form;
+}
+
+function login_page(){
+
+    $form = array();
+
+    $form['name'] = array(
+        '#type' => 'textfield',
+        '#title' => 'user name',
+        '#required' => TRUE,
+    );
+    $form['password'] = array(
+        '#type' => 'password',
+        '#title' => 'Password',
+        '#required' => TRUE,
+    );
+    $form['submit'] = array(
+        '#type' => 'submit',
+        '#value' => 'Login',
+        '#ajax' => array(
+            'callback' => '_form_login_add_callback',
+            'progess' => array('type' => 'throbber'),
+            'wrapper' => 'loginwrapper',
+            'method' => 'replace',
+            'effect' => 'fade',
+        ),
+    );
+
+    drupal_add_js(drupal_get_path('module', 'login'). '/login.js');
+
+    $form['#submit'][] = '_form_login_add_callback';
+    $form['#prefix'] = '<div id="loginwrapper">';
+    $form['#suffix'] = '</div>';
+//    $form['#action'] = "http://localhost/drup/drupal-7.53/";
+    return $form;
+}
+
+function login_login_validate($form_id, $form_values) {
+    if ($form_values['name']) {
+
+        if (user_is_blocked($form_values['name'])) {
+            // blocked in user administration
+            form_set_error('name', t('The username %name has not been activated or is blocked.', array('%name' => $form_values['name'])));
+        }
+        else if (drupal_is_denied('user', $form_values['name'])) {
+            // denied by access controls
+            form_set_error('name', t('The name %name is a reserved username.', array('%name' => $form_values['name'])));
+        }
+        else if ($form_values['password']) {
+            $user = user_authenticate($form_values['name'], trim($form_values['password']));
+
+            if (!$user) {
+                form_set_error('name', t('Sorry, unrecognized username or password. <a href="@password">Have you forgotten your password?</a>', array('@password' => url('user/password'))));
+                watchdog('user', t('Login attempt failed for %user.', array('%user' => $form_values['name'])));
+                return 0;
+            }
+            return 1;
+        }
+    }
+}
+
+function _form_login_add_callback(&$form,$form_state){
+    drupal_validate_form('login-page', $form, $form_state);/*check if valid you must make '#required' => TRUE*/
+    login_login_validate('login-page', $form_state['values']);
+    if(form_get_errors()){
+        $form_state['rebuild'] = TRUE;/*if found error reback to form*/
+    }
+    else{
+//        $auth = user id
+//        $form['#action'] = "http://localhost/drup/drupal-7.53/";
+//        ctools_ajax_command_redirect('http://localhost/drup/drupal-7.53/',0,array('query'=>array('param1'=>'value1')));
+//        $res = ctools_include('ajax');
+//        $res2 = ctools_add_js('ajax-responder');
+//        echo "<pre>";
+//        print_r ($res);
+//        exit;
+//        $commands = array();
+//        print_r (ctools_ajax_command_redirect('/'));
+//        echo "<pre>";
+//        print_r (ajax_render($commands));
+//        exit;
+//        $commands[] = ctools_ajax_command_redirect("/");
+//        return array('#type' => 'ajax',  '#commands' => $commands);
+    }
+    return $form;
+}

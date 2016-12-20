@@ -1,0 +1,103 @@
+<?php
+
+/*
+ * hook_menu
+ */
+function emp_menu(){
+
+    $items = array();
+//	http://localhost/drupal-7.52/?q=empolyeepage
+    $items['empolyeepage'] = array(
+        'title' => 'empolyees',
+        'description' => 'Description of empolyees Page',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('empolyee_showempolyees'),
+        'access callback' => 'user_access',
+        'access arguments' => array('access content'),
+        'type' => MENU_NORMAL_ITEM
+    );
+
+
+    $items['customerpage'] = array(
+        'title' => 'Customers',
+        'description' => 'Description of Customers Page',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('display_customer'),
+        'access callback' => 'user_access',
+        'access arguments' => array('access content'),
+        'type' => MENU_NORMAL_ITEM
+    );
+
+
+    return $items;
+}
+
+function empolyee_showempolyees(){
+    $form = array();
+    $entity = new EntityFieldQuery();
+    $result = $entity
+        ->entityCondition('entity_type', 'node')
+        ->propertyCondition('type','empolyee')->execute();
+    if(isset($result['node'])){
+        require_once 'displayTable.php';
+        $dt = new displayTable();
+        $keys = $dt->get_keys($result['node']);
+        $news_items = entity_load('node', $keys);
+//        echo  "<pre>";
+//        print_r($news_items);
+//        exit;
+        $table = array();
+        /*TITEL,JOB,AGE,DEPARTEMENT,*/
+        foreach ($news_items as $item){
+
+            $depart = "Empty";
+            if($item->field_departement != null){
+                $depart =  $item->field_departement[LANGUAGE_NONE][0]['target_id'];
+                $dep = node_load('node',$depart);
+                $depart = $dep->title;
+            }
+            $table[] = array(
+                $item->title,
+                $item->field_job[LANGUAGE_NONE][0]['value'],
+                $item->field_age[LANGUAGE_NONE][0]['value'],
+                $depart,
+            );
+        }
+
+        $header = array("Name","Job","Age","Departement");
+        $output = theme('table',array('header'=>$header,'rows'=>$table));
+        $form['#suffix'] = "<div>$output</div>";
+
+    }
+    else drupal_set_message("not found any users");
+    return $form;
+}
+
+function display_customer(){
+    $form = array();
+    $entity = new EntityFieldQuery();
+    $result = $entity
+        ->entityCondition('entity_type', 'node')
+        ->propertyCondition('type','customer')->execute();
+    if(isset($result['node'])) {
+        $keys = array();
+        foreach ($result['node'] as $res) {
+            $keys [] = $res->nid;
+        }
+        $news_items = entity_load('node', $keys);
+        foreach ($news_items as $item){
+
+            $table[] = array(
+                $item->title,
+                $item->field_phone[LANGUAGE_NONE][0]['value'],
+                $item->field_address[LANGUAGE_NONE][0]['value'],
+            );
+        }
+        $header = array("Name","Phone","Address");
+        $output = theme('table',array('header'=>$header,'rows'=>$table));
+        $form['#suffix'] = "<div>$output</div>";
+        return $form;
+    }
+}
+
+

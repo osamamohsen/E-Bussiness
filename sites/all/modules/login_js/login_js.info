@@ -1,0 +1,3 @@
+name = login_js
+description = just a login_js module.
+core = 7.x
