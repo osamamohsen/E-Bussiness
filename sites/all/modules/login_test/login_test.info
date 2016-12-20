@@ -1,0 +1,3 @@
+name = login_test
+description = just a login_test module.
+core = 7.x

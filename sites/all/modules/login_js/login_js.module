@@ -11,13 +11,14 @@ function login_js_menu(){
         'page arguments' => array('login_js_page'),
         'access callback' => 'user_access',
         'access arguments' => array('access content'),
-        'type' => MENU_NORMAL_ITEM
+//        'type' => MENU_NORMAL_ITEM
     );
 
-    $items['course/API/v1/question-data'] =  array(
-        'title' => '',
-        'page callback' => 'course_question_data',
+    $items['api/login_page'] =  array(
+        'title' => 'op',
+        'page callback' => 'login_js_ajax',
         'access arguments' => array('access content'),
+        'access callback' => true,
         'type' => MENU_CALLBACK,
         'delivery callback' => 'drupal_json_output',
     );
@@ -25,9 +26,11 @@ function login_js_menu(){
     return $items;
 }
 
-function login_js_page(){
+function login_js_page($form, &$form_state){
 
-    $form = array();
+    drupal_add_js(drupal_get_path('module','login_js') . '/login_js.js', 'file');
+
+     array();
 //    echo 'd';
 
     $form['name'] = array(
@@ -46,19 +49,27 @@ function login_js_page(){
     );
 //    $form['#attributes'] = array('onsubmit' => 'return false');
 
-    $form['#suffix'] = "<div id='errors'></div>";
+//    $form['#attached']['js'] = array
+//    (
+//        array
+//        (
+//            'type'  => 'file',
+//            'data' => drupal_get_path('module', 'login_js') . '/login_js.js',
+//        ),
+//    );
 
-    drupal_add_js(drupal_get_path('module','login_js') . '/login_js.js', 'file');
+    $form['#suffix'] = "<div id='errors'></div>";
+//
 
     return $form;
 
 }
 
 /*function redirect ajax submit*/
-function course_question_data() {
-    $name = "ahmed";
-    if(!empty($_POST['name']))  $name='submit';
-//    $_POST['name'] = "osama";
-//    $name = $_POST['name'];
-    return json_encode(['name' => $name, 'age' => 23]);
+function login_js_ajax() {
+    if(isset($_POST) && !empty($_POST)){
+        return json_encode(['name'=>$_POST,'password'=>'352']);
+    }
+    return json_encode(['name'=>'asd','password'=>'123']);
+
 }
