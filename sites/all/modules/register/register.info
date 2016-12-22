@@ -1,0 +1,3 @@
+name = register
+description = just a Register module.
+core = 7.x

@@ -15,32 +15,32 @@ function login_test_menu()
 function login_test_form($form, &$form_state)
 {
     // First we create a form element with AJAX enabled
-    $form['ajax_example'] = array
-    (
-        '#type' => 'select',
-        '#title' => t('Change me'),
-        // Note that I am setting the value and the display of the elements to be the same, for convenience sake in our callback function
-        '#options' => array(t('Select something') => t('Select something'), t('Something selected') => t('Something selected')),
-        '#prefix' => '<div id="login_test_element_wrapper">',
-        '#suffix' => '</div>',
-        '#ajax' => array
-        (
-            'callback' => 'login_test_ajax_callback',
-            'event' => 'change',
-        ),
-    );
-
-    // Next we add our JavaScript file, named after_ajax.js. This file
-    // lives in the /js folder inside our module:
-    $form['#attached']['js'] = array
-    (
-        array
-        (
-            'type'  => 'file',
-            'data' => drupal_get_path('module', 'login_test') . '/js/login_test.js',
-        ),
-    );
-    return $form;
+//    $form['ajax_example'] = array
+//    (
+//        '#type' => 'select',
+//        '#title' => t('Change me'),
+//        // Note that I am setting the value and the display of the elements to be the same, for convenience sake in our callback function
+//        '#options' => array(t('Select something') => t('Select something'), t('Something selected') => t('Something selected')),
+//        '#prefix' => '<div id="login_test_element_wrapper">',
+//        '#suffix' => '</div>',
+//        '#ajax' => array
+//        (
+//            'callback' => 'login_test_ajax_callback',
+//            'event' => 'change',
+//        ),
+//    );
+//
+//    // Next we add our JavaScript file, named after_ajax.js. This file
+//    // lives in the /js folder inside our module:
+//    $form['#attached']['js'] = array
+//    (
+//        array
+//        (
+//            'type'  => 'file',
+//            'data' => drupal_get_path('module', 'login_test') . '/js/login_test.js',
+//        ),
+//    );
+//    return $form;
 }
 
 function login_test_ajax_callback($form, &$form_state)

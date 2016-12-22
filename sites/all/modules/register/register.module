@@ -1,0 +1,89 @@
+<?php
+
+function register_menu(){
+    $items = array();
+//	http://localhost/drupal-7.52/?q=login_page
+    $items['register'] = array(
+        'title' => 'Register Page by JavaScript',
+        'description' => 'Description of Register Page',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('register_page'),
+        'access callback' => 'user_access',
+        'access arguments' => array('access content'),
+        'type' => MENU_NORMAL_ITEM
+    );
+
+    $items['api/register'] =  array(
+        'title' => 'op',
+        'page callback' => 'register_ajax',
+        'access arguments' => array('access content'),
+        'access callback' => true,
+        'type' => MENU_CALLBACK,
+        'delivery callback' => 'drupal_json_output',
+    );
+
+
+    return $items;
+}
+
+/* function info init*/
+function register_page(){
+    $form['name'] = array(
+        '#type' => 'textfield',
+        '#title' => 'please Enter user name',
+        '#required' => TRUE,
+    );
+    $form['mail'] = array(
+        '#type' => 'textfield',
+        '#title' => 'please enter Email Address',
+        '#required' => TRUE,
+    );
+    $form['pass'] = array(
+        '#type' => 'password_confirm',
+        '#required' => TRUE,
+    );
+    $form['submit'] = array(
+        '#type' => 'submit',
+        '#value' => 'Register',
+    );
+//class='messages error'
+    $form['#prefix'] = "<div class='messages error' hidden id='register_errors'></div>";
+
+    drupal_add_js(drupal_get_path('module','login_js') . '/login_js.js', 'file');
+
+    return $form;
+}
+
+/* ajax function call back*/
+/*
+ *             $login_array = array('name'=>$user_exist->name);
+            user_login_finalize($login_array    );
+            return json_encode(['user'=>$user_exist]);
+ */
+function register_ajax()
+{
+    global $user;
+//    echo "Done";
+    if (isset($_POST)) {
+//        return json_decode(['user'=>null]);
+        $user_exist = user_load_by_mail($_POST['mail']);
+        if (!$user_exist) {
+            $newUser = array(
+                'name' => $_POST['name'],
+                'pass' => $_POST['pass']['pass1'], // note: do not md5 the password
+                'mail' => $_POST['mail'],
+                'status' => 1,
+                'init' => $_POST['mail']
+            );
+//            return json_encode(['user' => $_POST['pass']['pass1']]);
+            $myuser = array();
+            $myuser = user_save(null, $newUser);
+            user_authenticate($_POST['name'],$_POST['pass']['pass1'],1);
+            $register_array = array('name' => $_POST['name']);
+            $user = user_load($myuser->uid);
+            user_login_finalize($register_array);
+            return json_encode(['user' => $myuser]);
+        } else
+            return json_encode(['myuser' => null]);
+    }
+}

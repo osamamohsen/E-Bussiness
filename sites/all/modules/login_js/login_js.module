@@ -28,14 +28,10 @@ function login_js_menu(){
 
 function login_js_page($form, &$form_state){
 
-    drupal_add_js(drupal_get_path('module','login_js') . '/login_js.js', 'file');
 
-     array();
-//    echo 'd';
-
-    $form['name'] = array(
+    $form['email'] = array(
         '#type' => 'textfield',
-        '#title' => 'user name',
+        '#title' => 'Email Address',
         '#required' => TRUE,
     );
     $form['password'] = array(
@@ -47,22 +43,32 @@ function login_js_page($form, &$form_state){
         '#type' => 'submit',
         '#value' => 'Login',
     );
+//class='messages error'
+    $form['#prefix'] = "<div class='messages error' hidden id='errors'></div>";
 
-    $form['#suffix'] = "<div id='errors'></div>";
+    drupal_add_js(drupal_get_path('module','login_js') . '/login_js.js', 'file');
 
     return $form;
 
 }
 
+
 /*function redirect ajax submit*/
 function login_js_ajax() {
-//    $callback = check_plain($_REQUEST['callback']);
-//    drupal_add_http_header('Content-Type', 'application/json');
+    global $user;
     if(isset($_POST)){
-//        print_r($_POST);
-
-        return json_encode(['name'=>$_POST['name'],'password'=>'352']);
+        $user_exist = user_load_by_mail($_POST['email']);
+        if(!$user_exist) return json_encode(['user'=>null]);
+        $uid = user_authenticate($user_exist->name,$_POST['password'],1);
+        if($uid) {
+            $user = user_load($uid);
+            $login_array = array('name'=>$user_exist->name);
+            user_login_finalize($login_array    );
+            return json_encode(['user'=>$user_exist]);
+        }
+        return json_encode(['user'=>null]);
     }
-    return json_encode(['name'=>"",'password'=>'123']);
+    return json_encode(['name'=>"",'password'=>'']);
 
 }
+

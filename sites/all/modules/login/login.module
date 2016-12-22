@@ -51,41 +51,41 @@ function login_menu(){
 function register_page(){
     $form = array();
 
-    $form['username'] = array(
-        '#type' => 'textfield',
-        '#title' => 'username Of Registeration',
-        '#required' => TRUE,
-    );
-
-    $form['fullname'] = array(
-        '#type' => 'textfield',
-        '#title' => 'fullname Of Registeration',
-        '#required' => TRUE,
-    );
-
-    $form['email'] = array(
-        '#type' => 'textfield',
-        '#title' => 'email Of Registeration',
-        '#required' => TRUE,
-    );
-
-    $form['c_password'] = array(
-        '#type' => 'password_confirm',
-        '#title' => 'confirm password Of Registeration',
-        '#required' => TRUE,
-    );
-
-    $form['submit'] = array(
-        '#type' => 'submit',
-        '#value' => 'Submit a Registeration Page',
-        '#ajax' => array(
-            'callback' => '_form_register_add_callback',
-            'progess' => array('type' => 'throbber'),
-            'wrapper' => 'registerwrapper',
-            'method' => 'replace',
-            'effect' => 'fade',
-        ),
-    );
+//    $form['username'] = array(
+//        '#type' => 'textfield',
+//        '#title' => 'username Of Registeration',
+//        '#required' => TRUE,
+//    );
+//
+//    $form['fullname'] = array(
+//        '#type' => 'textfield',
+//        '#title' => 'fullname Of Registeration',
+//        '#required' => TRUE,
+//    );
+//
+//    $form['email'] = array(
+//        '#type' => 'textfield',
+//        '#title' => 'email Of Registeration',
+//        '#required' => TRUE,
+//    );
+//
+//    $form['c_password'] = array(
+//        '#type' => 'password_confirm',
+//        '#title' => 'confirm password Of Registeration',
+//        '#required' => TRUE,
+//    );
+//
+//    $form['submit'] = array(
+//        '#type' => 'submit',
+//        '#value' => 'Submit a Registeration Page',
+//        '#ajax' => array(
+//            'callback' => '_form_register_add_callback',
+//            'progess' => array('type' => 'throbber'),
+//            'wrapper' => 'registerwrapper',
+//            'method' => 'replace',
+//            'effect' => 'fade',
+//        ),
+//    );
 
     $form['#prefix'] = '<div id="registerwrapper">';
     $form['#suffix'] = '</div>';
